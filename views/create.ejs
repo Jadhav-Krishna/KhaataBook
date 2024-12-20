@@ -1,0 +1,48 @@
+<%- include('./partials/header.ejs') %>
+
+<div class="min-h-screen flex items-center justify-center bg-zinc-100">
+    <div class="bg-white shadow-xl rounded-xl p-10 max-w-lg mx-auto border border-gray-200 transform transition-all duration-500 hover:scale-100">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Create New Hisaab</h2>
+        <form action="/hisaab/create" method="post" class="space-y-6">
+            <div class="relative">
+                <input name="title" autocomplete="off" type="text" placeholder="Shopping Hisaab, Ghar ka Kharch..."
+                    class="w-full p-4 border border-gray-100 outline-none rounded-lg shadow-sm focus:ring-1 focus:ring-gray-100 focus:border-transparent transition duration-300 ease-in-out text-gray-800 placeholder-gray-400">
+                <span class="absolute inset-y-0 right-4 flex items-center text-gray-500">
+                    <i class="ri-edit-box-line"></i>
+                </span>
+            </div>
+            <div class="relative">
+                <textarea name="description" autocomplete="off" placeholder="Daal, Aata, Cheeni"
+                    class="resize-none outline-none w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400 focus:border-transparent transition duration-300 ease-in-out h-40 text-gray-800 placeholder-gray-400"></textarea>
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="flex items-center">
+                    <input name="encrypted" autocomplete="off" type="checkbox" class="form-checkbox outline-none h-5 w-5 text-gray-500">
+                    <span class="ml-2 text-gray-600">Encrypt this file</span>
+                </label>
+                <input name="passcode" autocomplete="off" type="password" placeholder="Passcode"
+                    class="bg-white p-4 border outline-none border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 transition duration-300 ease-in-out">
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="flex items-center">
+                    <input name="shareable" autocomplete="off" type="checkbox" class="form-checkbox outline-none h-5 w-5 text-gray-500">
+                    <span class="ml-2 text-gray-600">Shareable file ???</span>
+                </label>
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="flex items-center">
+                    <input name="editpermissions" type="checkbox" class="form-checkbox h-5 w-5 text-gray-500">
+                    <span class="ml-2 text-gray-600">Edit permissions.</span>
+                </label>
+            </div>
+            <div>
+                <button type="submit"
+                    class="w-full bg-gradient-to-r font-semibold from-purple-500 to-blue-500 hover:bg-blue-700 text-white py-3 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
+                    Create New Hisaab
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>

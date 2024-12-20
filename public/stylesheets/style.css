@@ -1,0 +1,18 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Now Display";
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+::selection{
+  color: blue;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 20px;
+  
+}
