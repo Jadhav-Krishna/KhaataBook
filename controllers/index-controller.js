@@ -14,7 +14,7 @@ module.exports.loginPageController = async (req,res)=>{
     if(user){
         bcrypt.compare(password, user.password, function(err, result) {
             if(result){
-                let token = jwt.sign({id:user._id , email:user.email},process.env.JWT_KEY);
+                let token = jwt.sign({id:user._id , email:user.email},process.env.JWT_SECRET);
                 res.cookie("token",token);
                 return res.send("login successfully :)");
             }else return res.send("Email address or password is incorrect.")
