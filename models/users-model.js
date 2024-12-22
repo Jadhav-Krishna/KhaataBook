@@ -1,35 +1,28 @@
-const mongoose = require("mongoose");
+const  mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
+// Define the user schema
+const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    trim: true,
-    minLength: 3,
-    maxLength: 20,
     required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  profilepicture: {
-    type: String,
-    trim: true,
   },
   email: {
     type: String,
     required: true,
-    trim: true,
   },
   password: {
     type: String,
     required: true,
-    select: false,
+    select:false
   },
-  hisaab: [{ type: mongoose.Schema.Types.ObjectId, ref: "Hisaab" }],
+  hisaab: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Hisaab", 
+  }],
 });
 
-const User = mongoose.model("User", userSchema);
+// Create a User model from the schema
+const User = mongoose.model('User', userSchema);
 
+// Export the User model
 module.exports = User;

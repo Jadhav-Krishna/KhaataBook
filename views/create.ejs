@@ -1,48 +1,56 @@
-<%- include('./partials/header.ejs') %>
+<%- include('partials/header') %>
 
-<div class="min-h-screen flex items-center justify-center bg-zinc-100">
-    <div class="bg-white shadow-xl rounded-xl p-10 max-w-lg mx-auto border border-gray-200 transform transition-all duration-500 hover:scale-100">
-        <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Create New Hisaab</h2>
-        <form action="/hisaab/create" method="post" class="space-y-6">
-            <div class="relative">
-                <input name="title" autocomplete="off" type="text" placeholder="Shopping Hisaab, Ghar ka Kharch..."
-                    class="w-full p-4 border border-gray-100 outline-none rounded-lg shadow-sm focus:ring-1 focus:ring-gray-100 focus:border-transparent transition duration-300 ease-in-out text-gray-800 placeholder-gray-400">
-                <span class="absolute inset-y-0 right-4 flex items-center text-gray-500">
-                    <i class="ri-edit-box-line"></i>
-                </span>
-            </div>
-            <div class="relative">
-                <textarea name="description" autocomplete="off" placeholder="Daal, Aata, Cheeni"
-                    class="resize-none outline-none w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400 focus:border-transparent transition duration-300 ease-in-out h-40 text-gray-800 placeholder-gray-400"></textarea>
-            </div>
-            <div class="flex items-center gap-3">
-                <label class="flex items-center">
-                    <input name="encrypted" autocomplete="off" type="checkbox" class="form-checkbox outline-none h-5 w-5 text-gray-500">
-                    <span class="ml-2 text-gray-600">Encrypt this file</span>
-                </label>
-                <input name="passcode" autocomplete="off" type="password" placeholder="Passcode"
-                    class="bg-white p-4 border outline-none border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 transition duration-300 ease-in-out">
-            </div>
-            <div class="flex items-center gap-3">
-                <label class="flex items-center">
-                    <input name="shareable" autocomplete="off" type="checkbox" class="form-checkbox outline-none h-5 w-5 text-gray-500">
-                    <span class="ml-2 text-gray-600">Shareable file ???</span>
-                </label>
-            </div>
-            <div class="flex items-center gap-3">
-                <label class="flex items-center">
-                    <input name="editpermissions" type="checkbox" class="form-checkbox h-5 w-5 text-gray-500">
-                    <span class="ml-2 text-gray-600">Edit permissions.</span>
-                </label>
-            </div>
-            <div>
-                <button type="submit"
-                    class="w-full bg-gradient-to-r font-semibold from-purple-500 to-blue-500 hover:bg-blue-700 text-white py-3 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
+    <div class="flex items-center justify-center w-full">
+        <div class="max-w-md w-full mt-4 p-8 bg-white rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-red-500 mb-8">Create Hisaab</h2>
+            <form method="post" action="/hisaab/createhisaab">
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700">Title</label>
+                    <input type="text" id="title" name="title" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700">Description of hisaab</label>
+                    <textarea id="description"  name="description" class="w-full px-3 py-2 border rounded-md resize-none"></textarea>
+                </div>
+                <div class="mb-2">
+                    <!-- <label for="encryption" class="block text-gray-700">Encryption</label> -->
+                    <input type="checkbox"  id="encryption" name="encryption" class="mr-2"
+                        onclick="document.getElementById('passcodeField').classList.toggle('hidden', !this.checked)" />
+                    Mark if encryption is required
+                </div>
+                <div id="passcodeField" class="mb-2 hidden">
+                    <input type="password" autocomplete="off"  id="passcode" placeholder="enter password for encryption" name="passcode" 
+                        class="w-full px-3 py-2 border rounded-md" />
+                </div>
+                <div class="flex items-center justify-between gap-32  w-full">
+                    <div class="mb-4">
+                        <label for="shareable" class="block text-gray-700">Shareable?</label>
+                        <input type="checkbox" id="shareable" name="shareable" class="mr-2" />
+                        Mark if shareable
+                    </div>
+                    <div class="mb-4">
+                        <label for="editPermission" class="block text-gray-700">Edit Permission</label>
+                        <input type="checkbox" id="editPermission" name="editPermission" class="mr-2" />
+                        Mark if edit permission is required
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
                     Create New Hisaab
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
-
-<%- include('./partials/footer.ejs') %>
+    <div class="mt-4 ml-20">
+        <a href="/profile" class="text-gray-500 hover:text-gray-700">← Back to Profile</a>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Set initial state of passcode field based on the encryption checkbox state
+            const encryptionCheckbox = document.getElementById("encryption");
+            const passcodeField = document.getElementById("passcodeField");
+            if (encryptionCheckbox.checked) {
+                passcodeField.classList.remove("hidden");
+            }
+        });
+    </script>
+    <%- include('./partials/footer.ejs') %>

@@ -1,42 +1,44 @@
 const mongoose = require("mongoose");
 
-const hisaabSchema = mongoose.Schema(
-  {
-    title: {
-      type: String,
-      trim: true,
-      minLength: 3,
-      maxLength: 100,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    encrypted: {
-      type: Boolean,
-      default: false,
-    },
-    shareable: {
-      type: Boolean,
-      default: false,
-    },
-    passcode: {
-      type: String,
-      default: "",
-    },
-    editpermissions: {
-      type: Boolean,
-      default: false,
-    },
+const hisaabSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
   },
-  { timestamps: true }
-);
+  description: {
+    type: String,
+    required: true,
+  },
+  encryption: {
+    type: Boolean,
+    default: false,
+  },
+  passcode: {
+    type: String,
+    default: "",
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Reference to the User model
+    // required: true, // User ID is required
+  },
+  shareable: {
+    type: Boolean,
+    default: false,
+  },
+  available: {
+    type: Boolean,
+    default: true,
+  },
+  editpermissions: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 const Hisaab = mongoose.model("Hisaab", hisaabSchema);
 

@@ -1,60 +1,155 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const router = express.Router();
+const { checkPasscode, isAuthenticatedForHisaab, clearAuthenticatedHisaabs } = require("../middlewares/hisaab-auth");
 const { isLoggedIn } = require("../middlewares/login-middleware");
-const HisaabModel = require("../models/hisaab-model");
-const UserModel = require("../models/users-model");
+const hisaabModel = require("../models/hisaab-model");
+const userModel = require("../models/users-model");
+const moment = require("moment");
 
-router.get("/", isLoggedIn, (req, res) => {
+router.get("/", (req, res) => {
+  res.send("this is a hisaab route");
+});
+
+router.get("/create", isLoggedIn, (req, res) => {
   res.render("create");
 });
 
-router.post("/create", isLoggedIn, async (req, res) => {
+router.post("/createhisaab", isLoggedIn, async (req, res) => {
   try {
-    let { title, description, encrypted, shareable, passcode, editpermissions } = req.body;
+    let { title, description, encryption, passcode, shareable, available, editPermission } = req.body;
 
-    // Convert shareable and editpermissions to boolean values
-    shareable = shareable === "on";  // If the checkbox is checked, 'shareable' will be "on", so convert it to boolean
-    editpermissions = editpermissions === "on";  // Same for editpermissions
+    encryption = (encryption === 'on');
+    shareable = (shareable === 'on');
+    editPermission = (editPermission === 'on');
 
-    // Default values for checkboxes
-    encrypted = encrypted || false;
-    passcode = encrypted && passcode ? passcode : '';  // Only keep passcode if the file is encrypted
-
-    // If encrypted, hash the passcode before saving
-    if (encrypted && passcode) {
-      const salt = await bcrypt.genSalt(10);
-      passcode = await bcrypt.hash(passcode, salt);
+    if (encryption && !passcode) {
+      req.flash("error_msg", "When encryption is enabled, passcode is required.");
+      return res.redirect("/hisaab/create");
     }
 
-    // Basic validation for required fields
-    if (!title || !description) {
-      return res.status(400).send("Title and description are required.");
+    if (!title) {
+      req.flash("error_msg", "Title is required.");
+      return res.redirect("/hisaab/create");
+    }
+    if (!description) {
+      req.flash("error_msg", "Description is required.");
+      return res.redirect("/hisaab/create");
     }
 
-    // Create new Hisaab
-    let hisaab = await HisaabModel.create({
+    const newHisaab = await hisaabModel.create({
       title,
       description,
-      user: req.user._id, // Ensure using the correct user ID field
-      encrypted,
-      shareable,
+      encryption,
       passcode,
-      editpermissions,
+      shareable,
+      available,
+      editpermissions: editPermission,
+      user: req.user._id
     });
 
-    // Add the created Hisaab to the user's list of Hisaabs
-    let user = await UserModel.findOne({ email: req.user.email });
-    user.hisaab.push(hisaab._id);
+    await userModel.findByIdAndUpdate(req.user._id, { $push: { hisaab: newHisaab._id } });
 
-    await user.save();
-
-    // Redirect to the created Hisaab's page or a success page
-    res.redirect(`/hisaab/${hisaab._id}`);  // Redirect to a success page or created Hisaab page
+    req.flash("success_msg", "Hisaab created successfully.");
+    res.redirect("/profile");
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error while creating Hisaab");
+    req.flash("error_msg", err.message);
+    res.redirect("/hisaab/create");
   }
 });
 
+router.get("/:id", isLoggedIn, isAuthenticatedForHisaab, clearAuthenticatedHisaabs, async (req, res) => {
+  try {
+    const hisaab = await hisaabModel.findOne({ _id: req.params.id, user: req.user._id });
+    const user = await userModel.findOne({ email: req.user.email });
+    res.render("view", { user, hisaab, moment });
+  } catch (err) {
+    req.flash("error_msg", err.message);
+    res.redirect("/profile");
+  }
+});
+
+router.get("/view/:id", isLoggedIn, async (req, res) => {
+  try {
+    const hisaab = await hisaabModel.findOne({ _id: req.params.id, user: req.user._id });
+    const user = await userModel.findOne({ email: req.user.email });
+    if(hisaab.encryption) {
+      req.flash("error_msg","This is encrypted Hisaab")
+      return res.redirect("/hisaab/:id")
+    }
+    res.render("view", { user, hisaab, moment });
+  } catch (err) {
+    req.flash("error_msg", err.message);
+    res.redirect("/profile");
+  }
+});
+
+router.post("/passcode/:id", isLoggedIn, checkPasscode, (req, res) => {
+  const hisaabId = req.params.id;
+  res.redirect(`/hisaab/${hisaabId}`);
+});
+
+router.post("/update/:id", isLoggedIn, async (req, res) => {
+  try {
+    const { title, description, encryption, passcode, shareable, available, editPermission } = req.body;
+
+    const updateData = {
+      title,
+      description,
+      encryption: encryption === 'on',
+      passcode,
+      shareable: shareable === 'on',
+      available,
+      editpermissions: editPermission === 'on'
+    };
+
+    const hisaab = await hisaabModel.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      updateData,
+      { new: true }
+    );
+
+    if (!hisaab) {
+      req.flash("error_msg", "Hisaab not found.");
+      return res.redirect("/profile");
+    }
+
+    req.flash("success_msg", "Hisaab updated successfully.");
+    res.redirect("/profile");
+  } catch (err) {
+    req.flash("error_msg", err.message);
+    res.redirect(`/hisaab/view/${req.params.id}`);
+  }
+});
+router.get("/delete/:id",(req,res)=>{
+  res.redirect("/profile")
+})
+router.post("/delete/:id",isLoggedIn, async (req, res) => {
+  try {
+   hisaabModel.findOneAndDelete({ _id: req.params.id });
+    req.flash("success_msg", "Hisaab deleted successfully.");
+    res.redirect("/profile");
+  } catch (err) {
+    req.flash("error_msg", err.message);
+    res.redirect("/profile");
+  }
+});
+
+// router.post('/verify-passcode', async (req, res) => {
+//   const { hisaabId, currentPasscode } = req.body;
+
+//   try {
+//     const hisaab = await hisaabModel.findOne({ _id: hisaabId });
+
+//     if (hisaab && hisaab.passcode === currentPasscode) {
+//       return res.status(200).json({ message: 'Passcode verified' });
+//     } else {
+//       return res.status(401).json({ message: 'Incorrect passcode' });
+//     }
+//   } catch (error) {
+//     console.error('Error verifying passcode:', error);
+//     return res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
+
 module.exports = router;
+
